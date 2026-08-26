@@ -3,68 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <title>Upload Task</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ✅ Responsive scaling -->
   <style>
-    body { font-family: 'Segoe UI', Arial; background: #f4f4f4; margin: 0; padding: 40px; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
     .container {
-      max-width: 500px; margin: auto; background: #fff; padding: 30px;
-      border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 500px;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    h2 { text-align: center; margin-bottom: 20px; }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #2196f3;
+    }
+
     .drop-box {
-      width: 100%; height: 150px; border: 2px dashed #2196f3; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 15px; cursor: pointer; color: #555;
+      width: 100%;
+      height: 150px;
+      border: 2px dashed #2196f3;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+      cursor: pointer;
+      color: #555;
+      transition: background 0.3s ease;
     }
+
     textarea, select {
-      width: 100%; margin-bottom: 15px;
-      border: 1px solid #ccc; border-radius: 6px; padding: 10px;
+      width: 100%;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 14px;
     }
-    textarea { height: 80px; }
+
+    textarea {
+      height: 80px;
+      resize: vertical;
+    }
+
     button {
-      width: 100%; padding: 12px; background: #2196f3; color: #fff;
-      border: none; border-radius: 6px; cursor: pointer; font-size: 16px;
+      width: 100%;
+      padding: 12px;
+      background: #2196f3;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s ease;
     }
-    button:hover { background: #1976d2; }
 
-    /* Base styles already defined, now add responsiveness */
-@media (max-width: 1024px) {
-  .task-board {
-    gap: 15px;
-  }
-  .task-card {
-    width: 45%; /* two cards per row on tablets */
-  }
-}
+    button:hover {
+      background: #1976d2;
+    }
 
-@media (max-width: 768px) {
-  body {
-    padding: 20px;
-  }
-  .task-card {
-    width: 100%; /* full width on small screens */
-  }
-  h2 {
-    font-size: 20px;
-  }
-  button {
-    font-size: 14px;
-    padding: 10px 16px;
-  }
-}
+    /* ✅ Responsive adjustments */
+    @media (max-width: 768px) {
+      body {
+        padding: 20px;
+      }
+      .container {
+        padding: 20px;
+      }
+      h2 {
+        font-size: 20px;
+      }
+      button {
+        font-size: 14px;
+        padding: 10px;
+      }
+    }
 
-@media (max-width: 480px) {
-  h2 {
-    font-size: 18px;
-  }
-  .task-card {
-    padding: 15px;
-  }
-  button {
-    font-size: 13px;
-    padding: 8px 12px;
-  }
-}
-
+    @media (max-width: 480px) {
+      h2 {
+        font-size: 18px;
+      }
+      .container {
+        padding: 15px;
+      }
+      button {
+        font-size: 13px;
+        padding: 8px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -72,6 +111,7 @@
     <h2>Upload Task</h2>
     <div class="drop-box" id="dropBox">Drag & Drop File Here</div>
     <input type="file" id="fileInput" hidden>
+    <textarea id="userName" placeholder="Enter your name"></textarea>
     <textarea id="desc" placeholder="Enter task description..."></textarea>
     <label for="sendTo">Where to send:</label>
     <select id="sendTo">
@@ -87,12 +127,16 @@
     let fileData = null;
 
     dropBox.addEventListener('click', () => fileInput.click());
-    dropBox.addEventListener('dragover', e => { e.preventDefault(); dropBox.style.background = '#e3f2fd'; });
+    dropBox.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropBox.style.background = '#e3f2fd';
+    });
     dropBox.addEventListener('dragleave', () => dropBox.style.background = '');
     dropBox.addEventListener('drop', e => {
       e.preventDefault();
       fileData = e.dataTransfer.files[0];
       dropBox.textContent = "File: " + fileData.name;
+      dropBox.style.background = '';
     });
 
     fileInput.addEventListener('change', () => {

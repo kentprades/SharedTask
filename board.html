@@ -3,67 +3,96 @@
 <head>
   <meta charset="UTF-8">
   <title>Task Board</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ✅ Responsive scaling -->
   <style>
-    body { font-family: 'Segoe UI', Arial; background: #f4f4f4; margin: 0; padding: 40px; }
-    h2 { text-align: center; margin-bottom: 20px; }
-    .task-board { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 40px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #2196f3;
+      font-size: 2rem;
+    }
+
+    .task-board {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
     .task-card {
-      background: #fff; border: 1px solid #ccc; border-radius: 10px;
-      padding: 20px; width: 250px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      transition: opacity 1s ease;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 20px;
+      width: 250px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: opacity 1s ease, transform 0.3s ease;
     }
-    .task-card h4 { margin: 0 0 10px 0; color: #2196f3; }
-    .task-card p { margin: 0 0 10px 0; color: #555; }
+
+    .task-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+    }
+
+    .task-card h4 {
+      margin: 0 0 10px 0;
+      color: #2196f3;
+      font-size: 1.1rem;
+    }
+
+    .task-card p {
+      margin: 0 0 10px 0;
+      color: #555;
+      font-size: 0.95rem;
+    }
+
     button {
-      padding: 8px 12px; margin: 5px 0; border: none; border-radius: 6px;
-      cursor: pointer; font-size: 14px;
+      padding: 8px 12px;
+      margin: 5px 0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s ease;
     }
+
     .download-btn { background: #ff9800; color: #fff; }
+    .download-btn:hover { background: #e68900; }
+
     .done-btn { background: #4caf50; color: #fff; }
+    .done-btn:hover { background: #3e8e41; }
+
     .wait-btn { background: #2196f3; color: #fff; }
+    .wait-btn:hover { background: #1976d2; }
+
     .completed { background: #d4edda; border-color: #4caf50; }
     .countdown { font-weight: bold; color: red; margin-top: 5px; }
     .fade-out { opacity: 0; }
 
-    /* Base styles already defined, now add responsiveness */
-@media (max-width: 1024px) {
-  .task-board {
-    gap: 15px;
-  }
-  .task-card {
-    width: 45%; /* two cards per row on tablets */
-  }
-}
+    /* ✅ Responsive adjustments */
+    @media (max-width: 1024px) {
+      .task-card { width: 45%; } /* two cards per row on tablets */
+    }
 
-@media (max-width: 768px) {
-  body {
-    padding: 20px;
-  }
-  .task-card {
-    width: 100%; /* full width on small screens */
-  }
-  h2 {
-    font-size: 20px;
-  }
-  button {
-    font-size: 14px;
-    padding: 10px 16px;
-  }
-}
+    @media (max-width: 768px) {
+      body { padding: 20px; }
+      .task-card { width: 100%; } /* full width on small screens */
+      h2 { font-size: 1.6rem; }
+      button { font-size: 13px; padding: 10px 14px; }
+    }
 
-@media (max-width: 480px) {
-  h2 {
-    font-size: 18px;
-  }
-  .task-card {
-    padding: 15px;
-  }
-  button {
-    font-size: 13px;
-    padding: 8px 12px;
-  }
-}
-
+    @media (max-width: 480px) {
+      h2 { font-size: 1.4rem; }
+      .task-card { padding: 15px; }
+      button { font-size: 12px; padding: 8px 12px; }
+    }
   </style>
 </head>
 <body>
@@ -82,6 +111,7 @@
         const card = document.createElement('div');
         card.className = 'task-card';
         card.innerHTML = `
+          <p><strong>Uploaded by:</strong> ${task.userName}</p>
           <h4>${task.fileName}</h4>
           <p>${task.description}</p>
           <button class="download-btn">Download</button>
@@ -135,7 +165,6 @@
           };
         }
 
-        // ✅ Append to the correct container
         container.appendChild(card);
 
         function startCountdown(seconds, onFinish) {

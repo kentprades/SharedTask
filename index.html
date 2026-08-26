@@ -2,77 +2,91 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Task System</title>
+  <title>Shared Task </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ✅ Responsive scaling -->
   <style>
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
       background: linear-gradient(135deg, #2196f3, #21cbf3);
       color: #fff;
-      text-align: center;
       margin: 0;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
     }
-    h1 { margin-bottom: 40px; }
+
+    h1 {
+      margin-bottom: 40px;
+      font-size: 2.5rem;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 600px;
+    }
+
     button {
+      flex: 1 1 200px;
       padding: 15px 30px;
-      margin: 15px;
       font-size: 18px;
       background: #fff;
       color: #2196f3;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
-      transition: 0.3s;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
-    button:hover { background: #f1f1f1; }
 
-    /* Base styles already defined, now add responsiveness */
-@media (max-width: 1024px) {
-  .task-board {
-    gap: 15px;
-  }
-  .task-card {
-    width: 45%; /* two cards per row on tablets */
-  }
-}
+    button:hover {
+      background: #f1f1f1;
+      transform: translateY(-3px);
+    }
 
-@media (max-width: 768px) {
-  body {
-    padding: 20px;
-  }
-  .task-card {
-    width: 100%; /* full width on small screens */
-  }
-  h2 {
-    font-size: 20px;
-  }
-  button {
-    font-size: 14px;
-    padding: 10px 16px;
-  }
-}
+    /* ✅ Responsive adjustments */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 30px;
+      }
+      button {
+        font-size: 16px;
+        padding: 12px 24px;
+      }
+    }
 
-@media (max-width: 480px) {
-  h2 {
-    font-size: 18px;
-  }
-  .task-card {
-    padding: 15px;
-  }
-  button {
-    font-size: 13px;
-    padding: 8px 12px;
-  }
-}
-
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.6rem;
+        margin-bottom: 20px;
+      }
+      .button-group {
+        flex-direction: column;
+        gap: 15px;
+      }
+      button {
+        width: 100%;
+        font-size: 15px;
+        padding: 10px 20px;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Welcome to the Task System</h1>
-  <button onclick="location.href='task.html'">Upload Task</button>
-  <button onclick="location.href='board.html'">See Task Board</button>
+  <h1>Shared Task</h1>
+  <h3>Make the sharing easy!</h3>
+  <div class="button-group">
+    <button onclick="location.href='task.html'">Upload Task</button>
+    <button onclick="location.href='board.html'">See Task Board</button>
+  </div>
 </body>
 </html>

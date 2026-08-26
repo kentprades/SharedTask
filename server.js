@@ -37,6 +37,7 @@ let tasks = [];
 app.post('/upload', upload.single('taskFile'), (req, res) => {
   const task = {
     id: Date.now(),
+    userName: req.body.userName || 'Anonymous',  // NEW FIELD
     description: req.body.description,
     fileName: req.file.originalname,
     filePath: req.file.path,
