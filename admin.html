@@ -123,6 +123,7 @@
       const card = document.createElement('div');
       card.className = 'task-card';
       card.innerHTML = `
+        <p><strong>Uploaded by:</strong> ${task.userName}</p>
         <h4>${task.fileName}</h4>
         <p>${task.description}</p>
         <button class="download-btn">Download</button>
