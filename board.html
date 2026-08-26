@@ -27,12 +27,13 @@
   </style>
 </head>
 <body>
-  <h2>Task Board</h2>
+  <h2>Public Task Board</h2>
   <div class="task-board" id="taskBoard"></div>
 
   <script>
     async function loadTasks() {
-      const res = await fetch('https://sharedtask.onrender.com/tasks');
+      // ✅ Fetch only public tasks
+      const res = await fetch('https://sharedtask.onrender.com/tasks/public');
       const tasks = await res.json();
       const container = document.getElementById('taskBoard');
       container.innerHTML = '';

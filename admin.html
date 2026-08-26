@@ -33,70 +33,75 @@
 
   <script>
     async function loadAdminTasks() {
-      const res = await fetch('https://sharedtask.onrender.com/tasks');
-      const tasks = await res.json();
+      // ✅ Fetch separately
+      const publicRes = await fetch('https://sharedtask.onrender.com/tasks/public');
+      const zeiRes = await fetch('https://sharedtask.onrender.com/tasks/zei');
+
+      const publicTasks = await publicRes.json();
+      const zeiTasks = await zeiRes.json();
 
       const publicBoard = document.getElementById('publicBoard');
       const zeiBoard = document.getElementById('zeiBoard');
       publicBoard.innerHTML = '';
       zeiBoard.innerHTML = '';
 
-      tasks.forEach(task => {
-        const card = document.createElement('div');
-        card.className = 'task-card';
-        card.innerHTML = `
-          <h4>${task.fileName}</h4>
-          <p>${task.description}</p>
-          <button class="download-btn">Download</button>
-          <button class="done-btn">Delete</button>
-          <div class="countdown"></div>
-        `;
+      // Render public tasks
+      publicTasks.forEach(task => renderTask(task, publicBoard));
 
-        const downloadBtn = card.querySelector('.download-btn');
-        downloadBtn.onclick = () => {
-          const a = document.createElement('a');
-          a.href = 'https://sharedtask.onrender.com/' + task.filePath;
-          a.download = task.fileName;
-          a.click();
-        };
+      // Render Zei tasks
+      zeiTasks.forEach(task => renderTask(task, zeiBoard));
+    }
 
-        const doneBtn = card.querySelector('.done-btn');
-        const countdown = card.querySelector('.countdown');
-        let deleteTimeout = null, countdownInterval = null, remainingTime = 0;
+    function renderTask(task, container) {
+      const card = document.createElement('div');
+      card.className = 'task-card';
+      card.innerHTML = `
+        <h4>${task.fileName}</h4>
+        <p>${task.description}</p>
+        <button class="download-btn">Download</button>
+        <button class="done-btn">Delete</button>
+        <div class="countdown"></div>
+      `;
 
-        doneBtn.onclick = async () => {
-          card.classList.add('completed');
-          doneBtn.textContent = "Deleting...";
-          doneBtn.disabled = true;
-          startCountdown(3, async () => {
-            await fetch('https://sharedtask.onrender.com/delete/' + task.id, { method: 'DELETE' });
-            fadeAndRemove(card);
-          });
-        };
+      const downloadBtn = card.querySelector('.download-btn');
+      downloadBtn.onclick = () => {
+        const a = document.createElement('a');
+        a.href = 'https://sharedtask.onrender.com/' + task.filePath;
+        a.download = task.fileName;
+        a.click();
+      };
 
-        function startCountdown(seconds, onFinish) {
-          remainingTime = seconds;
+      const doneBtn = card.querySelector('.done-btn');
+      const countdown = card.querySelector('.countdown');
+      let deleteTimeout = null, countdownInterval = null, remainingTime = 0;
+
+      doneBtn.onclick = async () => {
+        card.classList.add('completed');
+        doneBtn.textContent = "Deleting...";
+        doneBtn.disabled = true;
+        startCountdown(3, async () => {
+          await fetch('https://sharedtask.onrender.com/delete/' + task.id, { method: 'DELETE' });
+          fadeAndRemove(card);
+        });
+      };
+
+      function startCountdown(seconds, onFinish) {
+        remainingTime = seconds;
+        countdown.textContent = "Deleting in " + remainingTime + "s";
+        countdownInterval = setInterval(() => {
+          remainingTime--;
           countdown.textContent = "Deleting in " + remainingTime + "s";
-          countdownInterval = setInterval(() => {
-            remainingTime--;
-            countdown.textContent = "Deleting in " + remainingTime + "s";
-            if (remainingTime <= 0) clearInterval(countdownInterval);
-          }, 1000);
-          deleteTimeout = setTimeout(onFinish, seconds * 1000);
-        }
+          if (remainingTime <= 0) clearInterval(countdownInterval);
+        }, 1000);
+        deleteTimeout = setTimeout(onFinish, seconds * 1000);
+      }
 
-        function fadeAndRemove(element) {
-          element.classList.add('fade-out');
-          setTimeout(() => element.remove(), 1000);
-        }
+      function fadeAndRemove(element) {
+        element.classList.add('fade-out');
+        setTimeout(() => element.remove(), 1000);
+      }
 
-        // ✅ Separate boards
-        if (task.sendTo === 'zei') {
-          zeiBoard.appendChild(card);
-        } else {
-          publicBoard.appendChild(card);
-        }
-      });
+      container.appendChild(card);
     }
 
     setInterval(loadAdminTasks, 5000);

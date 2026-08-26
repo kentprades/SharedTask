@@ -47,9 +47,19 @@ app.post('/upload', upload.single('taskFile'), (req, res) => {
   res.json({ message: 'Task submitted!' });
 });
 
-// Get tasks
+// Get all tasks (debug/general use)
 app.get('/tasks', (req, res) => {
   res.json(tasks);
+});
+
+// Get public tasks only
+app.get('/tasks/public', (req, res) => {
+  res.json(tasks.filter(t => t.sendTo === 'public'));
+});
+
+// Get Zei tasks only
+app.get('/tasks/zei', (req, res) => {
+  res.json(tasks.filter(t => t.sendTo === 'zei'));
 });
 
 // Mark task done
