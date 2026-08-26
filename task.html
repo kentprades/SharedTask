@@ -154,6 +154,7 @@
       }
 
       const formData = new FormData();
+      formData.append('userName', userName);
       formData.append('taskFile', fileData);
       formData.append('description', desc);
       formData.append('sendTo', sendTo);
