@@ -15,10 +15,11 @@
       display: flex; align-items: center; justify-content: center;
       margin-bottom: 15px; cursor: pointer; color: #555;
     }
-    textarea {
-      width: 100%; height: 80px; margin-bottom: 15px;
+    textarea, select {
+      width: 100%; margin-bottom: 15px;
       border: 1px solid #ccc; border-radius: 6px; padding: 10px;
     }
+    textarea { height: 80px; }
     button {
       width: 100%; padding: 12px; background: #2196f3; color: #fff;
       border: none; border-radius: 6px; cursor: pointer; font-size: 16px;
@@ -32,6 +33,11 @@
     <div class="drop-box" id="dropBox">Drag & Drop File Here</div>
     <input type="file" id="fileInput" hidden>
     <textarea id="desc" placeholder="Enter task description..."></textarea>
+    <label for="sendTo">Where to send:</label>
+    <select id="sendTo">
+      <option value="public">Public</option>
+      <option value="zei">Zei</option>
+    </select>
     <button onclick="submitTask()">Submit Task</button>
   </div>
 
@@ -56,15 +62,22 @@
 
     async function submitTask() {
       const desc = document.getElementById('desc').value;
+      const sendTo = document.getElementById('sendTo').value;
+
       if (!fileData || !desc) {
         alert("Please add a file and description!");
         return;
       }
+
       const formData = new FormData();
       formData.append('taskFile', fileData);
       formData.append('description', desc);
+      formData.append('sendTo', sendTo);
 
-      const res = await fetch('http://localhost:5000/upload', { method: 'POST', body: formData });
+      const res = await fetch('https://sharedtask.onrender.com/upload', {
+        method: 'POST',
+        body: formData
+      });
       const data = await res.json();
       alert(data.message);
       location.href = 'board.html';

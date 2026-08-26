@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Task Board</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial; background: #f4f4f4; margin: 0; padding: 40px; }
+    h2 { text-align: center; margin-bottom: 20px; }
+    .task-board { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+    .task-card {
+      background: #fff; border: 1px solid #ccc; border-radius: 10px;
+      padding: 20px; width: 250px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: opacity 1s ease;
+    }
+    .task-card h4 { margin: 0 0 10px 0; color: #2196f3; }
+    .task-card p { margin: 0 0 10px 0; color: #555; }
+    button {
+      padding: 8px 12px; margin: 5px 0; border: none; border-radius: 6px;
+      cursor: pointer; font-size: 14px;
+    }
+    .download-btn { background: #ff9800; color: #fff; }
+    .done-btn { background: #4caf50; color: #fff; }
+    .completed { background: #d4edda; border-color: #4caf50; }
+    .countdown { font-weight: bold; color: red; margin-top: 5px; }
+    .fade-out { opacity: 0; }
+  </style>
+</head>
+<body>
+  <h2>Public Tasks</h2>
+  <div class="task-board" id="publicBoard"></div>
+  <h2>Zei Only Tasks</h2>
+  <div class="task-board" id="zeiBoard"></div>
+
+  <script>
+    async function loadAdminTasks() {
+      const res = await fetch('https://sharedtask.onrender.com/tasks');
+      const tasks = await res.json();
+
+      const publicBoard = document.getElementById('publicBoard');
+      const zeiBoard = document.getElementById('zeiBoard');
+      publicBoard.innerHTML = '';
+      zeiBoard.innerHTML = '';
+
+      tasks.forEach(task => {
+        const card = document.createElement('div');
+        card.className = 'task-card';
+        card.innerHTML = `
+          <h4>${task.fileName}</h4>
+          <p>${task.description}</p>
+          <button class="download-btn">Download</button>
+          <button class="done-btn">Delete</button>
+          <div class="countdown"></div>
+        `;
+
+        const downloadBtn = card.querySelector('.download-btn');
+        downloadBtn.onclick = () => {
+          const a = document.createElement('a');
+          a.href = 'https://sharedtask.onrender.com/' + task.filePath;
+          a.download = task.fileName;
+          a.click();
+        };
+
+        const doneBtn = card.querySelector('.done-btn');
+        const countdown = card.querySelector('.countdown');
+        let deleteTimeout = null, countdownInterval = null, remainingTime = 0;
+
+        doneBtn.onclick = async () => {
+          card.classList.add('completed');
+          doneBtn.textContent = "Deleting...";
+          doneBtn.disabled = true;
+          startCountdown(3, async () => {
+            await fetch('https://sharedtask.onrender.com/delete/' + task.id, { method: 'DELETE' });
+            fadeAndRemove(card);
+          });
+        };
+
+        function startCountdown(seconds, onFinish) {
+          remainingTime = seconds;
+          countdown.textContent = "Deleting in " + remainingTime + "s";
+          countdownInterval = setInterval(() => {
+            remainingTime--;
+            countdown.textContent = "Deleting in " + remainingTime + "s";
+            if (remainingTime <= 0) clearInterval(countdownInterval);
+          }, 1000);
+          deleteTimeout = setTimeout(onFinish, seconds * 1000);
+        }
+
+        function fadeAndRemove(element) {
+          element.classList.add('fade-out');
+          setTimeout(() => element.remove(), 1000);
+        }
+
+        // ✅ Separate boards
+        if (task.sendTo === 'zei') {
+          zeiBoard.appendChild(card);
+        } else {
+          publicBoard.appendChild(card);
+        }
+      });
+    }
+
+    setInterval(loadAdminTasks, 5000);
+    loadAdminTasks();
+  </script>
+</body>
+</html>
