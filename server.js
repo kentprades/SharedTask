@@ -19,10 +19,9 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Serve static files from your "website" folder
+// Serve static files (frontend)
 app.use(express.static(path.join(__dirname)));
 
-// Example: serve index.html at root
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -58,18 +57,18 @@ app.post('/done/:id', (req, res) => {
   res.json({ message: 'Task marked as done!' });
 });
 
-// ✅ Delete task + file
+// Delete task + file
 app.delete('/delete/:id', (req, res) => {
   const task = tasks.find(t => t.id == req.params.id);
   if (task) {
     fs.unlink(task.filePath, err => {
-      if (err) {
-        console.error("File deletion error:", err);
-      }
+      if (err) console.error("File deletion error:", err);
     });
   }
   tasks = tasks.filter(t => t.id != req.params.id);
   res.json({ message: 'Task and file deleted!' });
 });
 
-app.listen(5000, () => console.log('Server running on http://localhost:5000'));
+// ✅ Use Render's dynamic port
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
