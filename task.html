@@ -77,32 +77,16 @@
 
     /* ✅ Responsive adjustments */
     @media (max-width: 768px) {
-      body {
-        padding: 20px;
-      }
-      .container {
-        padding: 20px;
-      }
-      h2 {
-        font-size: 20px;
-      }
-      button {
-        font-size: 14px;
-        padding: 10px;
-      }
+      body { padding: 20px; }
+      .container { padding: 20px; }
+      h2 { font-size: 20px; }
+      button { font-size: 14px; padding: 10px; }
     }
 
     @media (max-width: 480px) {
-      h2 {
-        font-size: 18px;
-      }
-      .container {
-        padding: 15px;
-      }
-      button {
-        font-size: 13px;
-        padding: 8px;
-      }
+      h2 { font-size: 18px; }
+      .container { padding: 15px; }
+      button { font-size: 13px; padding: 8px; }
     }
   </style>
 </head>
@@ -145,16 +129,17 @@
     });
 
     async function submitTask() {
-      const desc = document.getElementById('desc').value;
+      const userName = document.getElementById('userName').value.trim();
+      const desc = document.getElementById('desc').value.trim();
       const sendTo = document.getElementById('sendTo').value;
 
-      if (!fileData || !desc) {
-        alert("Please add a file and description!");
+      if (!fileData || !userName || !desc) {
+        alert("Please add your name, a file, and a description!");
         return;
       }
 
       const formData = new FormData();
-      formData.append('userName', userName);
+      formData.append('userName', userName);   // ✅ send name
       formData.append('taskFile', fileData);
       formData.append('description', desc);
       formData.append('sendTo', sendTo);

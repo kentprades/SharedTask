@@ -35,20 +35,22 @@ let tasks = [];
 
 // Upload task
 app.post('/upload', upload.single('taskFile'), (req, res) => {
+  const savedFileName = req.file.filename; // ✅ unique filename
   const task = {
     id: Date.now(),
-    userName: req.body.userName, 
+    userName: req.body.userName,
     description: req.body.description,
-    fileName: req.file.originalname,
-    filePath: req.file.path,
+    fileName: req.file.originalname,       // original name for display
+    fileUrl: '/uploads/' + savedFileName,  // ✅ public URL for download
+    filePath: req.file.path,               // filesystem path for deletion
     status: 'pending',
-    sendTo: req.body.sendTo || 'public'   // NEW FIELD
+    sendTo: req.body.sendTo || 'public'
   };
   tasks.push(task);
   res.json({ message: 'Task submitted!' });
 });
 
-// Get all tasks (debug/general use)
+// Get all tasks
 app.get('/tasks', (req, res) => {
   res.json(tasks);
 });

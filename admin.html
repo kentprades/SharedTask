@@ -75,12 +75,12 @@
 
     /* ✅ Responsive adjustments */
     @media (max-width: 1024px) {
-      .task-card { width: 45%; } /* two cards per row on tablets */
+      .task-card { width: 45%; }
     }
 
     @media (max-width: 768px) {
       body { padding: 20px; }
-      .task-card { width: 100%; } /* full width on small screens */
+      .task-card { width: 100%; }
       h2 { font-size: 1.6rem; }
       button { font-size: 13px; padding: 10px 14px; }
     }
@@ -100,7 +100,6 @@
 
   <script>
     async function loadAdminTasks() {
-      // ✅ Fetch separately
       const publicRes = await fetch('https://sharedtask.onrender.com/tasks/public');
       const zeiRes = await fetch('https://sharedtask.onrender.com/tasks/zei');
 
@@ -112,10 +111,7 @@
       publicBoard.innerHTML = '';
       zeiBoard.innerHTML = '';
 
-      // Render public tasks
       publicTasks.forEach(task => renderTask(task, publicBoard));
-
-      // Render Zei tasks
       zeiTasks.forEach(task => renderTask(task, zeiBoard));
     }
 
@@ -123,7 +119,7 @@
       const card = document.createElement('div');
       card.className = 'task-card';
       card.innerHTML = `
-        <p><strong>Uploaded by:</strong> ${task.userName}</p>
+        <p><strong>Uploaded by:</strong> ${task.userName || "Anonymous"}</p>
         <h4>${task.fileName}</h4>
         <p>${task.description}</p>
         <button class="download-btn">Download</button>
@@ -134,7 +130,8 @@
       const downloadBtn = card.querySelector('.download-btn');
       downloadBtn.onclick = () => {
         const a = document.createElement('a');
-        a.href = 'https://sharedtask.onrender.com/' + task.filePath;
+        // ✅ Use /uploads route instead of raw filePath
+        a.href = 'https://sharedtask.onrender.com' + task.fileUrl; // ✅ use fileUrl
         a.download = task.fileName;
         a.click();
       };
