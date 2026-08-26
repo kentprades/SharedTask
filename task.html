@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload Task</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial; background: #f4f4f4; margin: 0; padding: 40px; }
+    .container {
+      max-width: 500px; margin: auto; background: #fff; padding: 30px;
+      border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 { text-align: center; margin-bottom: 20px; }
+    .drop-box {
+      width: 100%; height: 150px; border: 2px dashed #2196f3; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 15px; cursor: pointer; color: #555;
+    }
+    textarea {
+      width: 100%; height: 80px; margin-bottom: 15px;
+      border: 1px solid #ccc; border-radius: 6px; padding: 10px;
+    }
+    button {
+      width: 100%; padding: 12px; background: #2196f3; color: #fff;
+      border: none; border-radius: 6px; cursor: pointer; font-size: 16px;
+    }
+    button:hover { background: #1976d2; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Upload Task</h2>
+    <div class="drop-box" id="dropBox">Drag & Drop File Here</div>
+    <input type="file" id="fileInput" hidden>
+    <textarea id="desc" placeholder="Enter task description..."></textarea>
+    <button onclick="submitTask()">Submit Task</button>
+  </div>
+
+  <script>
+    const dropBox = document.getElementById('dropBox');
+    const fileInput = document.getElementById('fileInput');
+    let fileData = null;
+
+    dropBox.addEventListener('click', () => fileInput.click());
+    dropBox.addEventListener('dragover', e => { e.preventDefault(); dropBox.style.background = '#e3f2fd'; });
+    dropBox.addEventListener('dragleave', () => dropBox.style.background = '');
+    dropBox.addEventListener('drop', e => {
+      e.preventDefault();
+      fileData = e.dataTransfer.files[0];
+      dropBox.textContent = "File: " + fileData.name;
+    });
+
+    fileInput.addEventListener('change', () => {
+      fileData = fileInput.files[0];
+      dropBox.textContent = "File: " + fileData.name;
+    });
+
+    async function submitTask() {
+      const desc = document.getElementById('desc').value;
+      if (!fileData || !desc) {
+        alert("Please add a file and description!");
+        return;
+      }
+      const formData = new FormData();
+      formData.append('taskFile', fileData);
+      formData.append('description', desc);
+
+      const res = await fetch('http://localhost:5000/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      alert(data.message);
+      location.href = 'board.html';
+    }
+  </script>
+</body>
+</html>
