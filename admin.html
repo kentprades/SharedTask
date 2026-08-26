@@ -23,6 +23,46 @@
     .completed { background: #d4edda; border-color: #4caf50; }
     .countdown { font-weight: bold; color: red; margin-top: 5px; }
     .fade-out { opacity: 0; }
+
+    /* Base styles already defined, now add responsiveness */
+@media (max-width: 1024px) {
+  .task-board {
+    gap: 15px;
+  }
+  .task-card {
+    width: 45%; /* two cards per row on tablets */
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 20px;
+  }
+  .task-card {
+    width: 100%; /* full width on small screens */
+  }
+  h2 {
+    font-size: 20px;
+  }
+  button {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  h2 {
+    font-size: 18px;
+  }
+  .task-card {
+    padding: 15px;
+  }
+  button {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+}
+
   </style>
 </head>
 <body>
