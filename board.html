@@ -30,94 +30,94 @@
   <h2>Task Board</h2>
   <div class="task-board" id="taskBoard"></div>
 
- <script>
-  async function loadTasks() {
-    const res = await fetch('http://localhost:5000/tasks');
-    const tasks = await res.json();
-    const container = document.getElementById('taskBoard');
-    container.innerHTML = '';
+  <script>
+    async function loadTasks() {
+      const res = await fetch('https://sharedtask.onrender.com/tasks');
+      const tasks = await res.json();
+      const container = document.getElementById('taskBoard');
+      container.innerHTML = '';
 
-    tasks.forEach(task => {
-      const card = document.createElement('div');
-      card.className = 'task-card';
-      card.innerHTML = `
-        <h4>${task.fileName}</h4>
-        <p>${task.description}</p>
-        <button class="download-btn">Download</button>
-        ${task.status === 'pending'
-          ? `<button class="done-btn">Done</button>
-             <button class="wait-btn">Wait</button>
-             <div class="countdown"></div>`
-          : `<span style="color:green;">Completed</span>`}
-      `;
+      tasks.forEach(task => {
+        const card = document.createElement('div');
+        card.className = 'task-card';
+        card.innerHTML = `
+          <h4>${task.fileName}</h4>
+          <p>${task.description}</p>
+          <button class="download-btn">Download</button>
+          ${task.status === 'pending'
+            ? `<button class="done-btn">Done</button>
+               <button class="wait-btn">Wait</button>
+               <div class="countdown"></div>`
+            : `<span style="color:green;">Completed</span>`}
+        `;
 
-      const downloadBtn = card.querySelector('.download-btn');
-      downloadBtn.onclick = () => {
-        const a = document.createElement('a');
-        a.href = 'http://localhost:5000/' + task.filePath;
-        a.download = task.fileName;
-        a.click();
-      };
-
-      const doneBtn = card.querySelector('.done-btn');
-      const waitBtn = card.querySelector('.wait-btn');
-      const countdown = card.querySelector('.countdown');
-
-      let deleteTimeout = null;
-      let countdownInterval = null;
-      let remainingTime = 0;
-
-      if (doneBtn) {
-        doneBtn.onclick = async () => {
-          card.classList.add('completed');
-          doneBtn.textContent = "Completed";
-          doneBtn.disabled = true;
-          startCountdown(3, async () => {
-            await fetch('http://localhost:5000/delete/' + task.id, { method: 'DELETE' });
-            fadeAndRemove(card);
-          });
+        const downloadBtn = card.querySelector('.download-btn');
+        downloadBtn.onclick = () => {
+          const a = document.createElement('a');
+          a.href = 'https://sharedtask.onrender.com/' + task.filePath;
+          a.download = task.fileName;
+          a.click();
         };
-      }
 
-      if (waitBtn) {
-        waitBtn.onclick = () => {
-          if (deleteTimeout) {
-            clearTimeout(deleteTimeout);
-            clearInterval(countdownInterval);
-          }
-          startCountdown(60, async () => {
-            await fetch('http://localhost:5000/delete/' + task.id, { method: 'DELETE' });
-            fadeAndRemove(card);
-          });
-          waitBtn.textContent = "Deletion delayed 1 min";
-          waitBtn.disabled = true;
-        };
-      }
+        const doneBtn = card.querySelector('.done-btn');
+        const waitBtn = card.querySelector('.wait-btn');
+        const countdown = card.querySelector('.countdown');
 
-      // ✅ Append to the correct container
-      container.appendChild(card);
+        let deleteTimeout = null;
+        let countdownInterval = null;
+        let remainingTime = 0;
 
-      function startCountdown(seconds, onFinish) {
-        remainingTime = seconds;
-        countdown.textContent = "Deleting in " + remainingTime + "s";
-        countdownInterval = setInterval(() => {
-          remainingTime--;
+        if (doneBtn) {
+          doneBtn.onclick = async () => {
+            card.classList.add('completed');
+            doneBtn.textContent = "Completed";
+            doneBtn.disabled = true;
+            startCountdown(3, async () => {
+              await fetch('https://sharedtask.onrender.com/delete/' + task.id, { method: 'DELETE' });
+              fadeAndRemove(card);
+            });
+          };
+        }
+
+        if (waitBtn) {
+          waitBtn.onclick = () => {
+            if (deleteTimeout) {
+              clearTimeout(deleteTimeout);
+              clearInterval(countdownInterval);
+            }
+            startCountdown(60, async () => {
+              await fetch('https://sharedtask.onrender.com/delete/' + task.id, { method: 'DELETE' });
+              fadeAndRemove(card);
+            });
+            waitBtn.textContent = "Deletion delayed 1 min";
+            waitBtn.disabled = true;
+          };
+        }
+
+        // ✅ Append to the correct container
+        container.appendChild(card);
+
+        function startCountdown(seconds, onFinish) {
+          remainingTime = seconds;
           countdown.textContent = "Deleting in " + remainingTime + "s";
-          if (remainingTime <= 0) clearInterval(countdownInterval);
-        }, 1000);
-        deleteTimeout = setTimeout(onFinish, seconds * 1000);
-      }
+          countdownInterval = setInterval(() => {
+            remainingTime--;
+            countdown.textContent = "Deleting in " + remainingTime + "s";
+            if (remainingTime <= 0) clearInterval(countdownInterval);
+          }, 1000);
+          deleteTimeout = setTimeout(onFinish, seconds * 1000);
+        }
 
-      function fadeAndRemove(element) {
-        element.classList.add('fade-out');
-        setTimeout(() => element.remove(), 1000);
-      }
-    });
-  }
+        function fadeAndRemove(element) {
+          element.classList.add('fade-out');
+          setTimeout(() => element.remove(), 1000);
+        }
+      });
+    }
 
-  loadTasks();
-</script>
-
+    // Auto-refresh every 5 seconds so board updates live
+    setInterval(loadTasks, 5000);
+    loadTasks();
+  </script>
 </body>
 </html>
-
