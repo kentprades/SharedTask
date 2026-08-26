@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Task Board</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f4; }
+    .task-board { display: flex; flex-wrap: wrap; gap: 15px; }
+    .task-card {
+      background: #fff; border: 1px solid #ccc; border-radius: 8px;
+      padding: 15px; width: 250px; transition: opacity 1s ease;
+    }
+    .done-btn { background: #4caf50; color: #fff; margin-top: 5px; }
+    .wait-btn { background: #2196f3; color: #fff; margin-top: 5px; }
+    .download-btn { background: #ff9800; color: #fff; margin-top: 5px; }
+    .countdown { font-weight: bold; color: red; margin-top: 5px; }
+    .fade-out { opacity: 0; }
+    .completed { background: #d4edda; border-color: #4caf50; }
+
+    .button {background: #2196f3; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 15px;}
+  </style>
+</head>
+<body>
+  <h2>Task Board</h2> <button class="button" onclick="location.href='task.html'">Upload New Task</button>
+  <div class="task-board" id="taskBoard"></div>
+
+  <script>
+    const board = document.getElementById('taskBoard');
+    const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+
+    tasks.forEach((task, index) => {
+      const card = document.createElement('div');
+      card.className = 'task-card';
+      card.innerHTML = `
+        <h4>${task.fileName}</h4>
+        <p>${task.description}</p>
+        <button class="download-btn">Download</button>
+        <button class="done-btn">Done</button>
+        <button class="wait-btn">Wait</button>
+        <div class="countdown"></div>
+      `;
+
+      const downloadBtn = card.querySelector('.download-btn');
+      const doneBtn = card.querySelector('.done-btn');
+      const waitBtn = card.querySelector('.wait-btn');
+      const countdown = card.querySelector('.countdown');
+
+      let deleteTimeout = null;
+      let countdownInterval = null;
+      let remainingTime = 0;
+
+      downloadBtn.onclick = () => {
+        const a = document.createElement('a');
+        a.href = task.fileData;
+        a.download = task.fileName;
+        a.click();
+      };
+
+      doneBtn.onclick = () => {
+        card.classList.add('completed');
+        doneBtn.textContent = "Completed";
+        doneBtn.disabled = true;
+        startCountdown(3, () => fadeAndRemove(card, index));
+      };
+
+      waitBtn.onclick = () => {
+        if (deleteTimeout) {
+          clearTimeout(deleteTimeout);
+          clearInterval(countdownInterval);
+          startCountdown(60, () => fadeAndRemove(card, index));
+          waitBtn.textContent = "Deletion delayed 1 min";
+          waitBtn.disabled = true;
+        }
+      };
+
+      board.appendChild(card);
+
+      function startCountdown(seconds, onFinish) {
+        remainingTime = seconds;
+        countdown.textContent = "Deleting in " + remainingTime + "s";
+        countdownInterval = setInterval(() => {
+          remainingTime--;
+          countdown.textContent = "Deleting in " + remainingTime + "s";
+          if (remainingTime <= 0) clearInterval(countdownInterval);
+        }, 1000);
+        deleteTimeout = setTimeout(onFinish, seconds * 1000);
+      }
+
+      function fadeAndRemove(element, idx) {
+        element.classList.add('fade-out');
+        setTimeout(() => {
+          element.remove();
+          tasks.splice(idx, 1);
+          localStorage.setItem('tasks', JSON.stringify(tasks));
+        }, 1000);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload Task</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .drop-box {
+      width: 300px; height: 150px; border: 2px dashed #888; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 15px; cursor: pointer;
+    }
+    textarea { width: 300px; height: 80px; margin-bottom: 10px; }
+    button { padding: 10px 20px; background: #4caf50; color: #fff;
+             border: none; border-radius: 5px; cursor: pointer; }
+    .Tbutton {background: #2196f3; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-left: 10px;}
+  </style>
+</head>
+<body>
+  <h2>Upload Task</h2>
+  <div class="drop-box" id="dropBox">Drag & Drop File Here</div>
+  <input type="file" id="fileInput" hidden>
+  <textarea id="desc" placeholder="Enter task description..."></textarea><br>
+  <button onclick="submitTask()">Submit Task</button>
+  <button class="Tbutton" onclick="location.href='board.html'">View Task Board</button>
+
+  <script>
+    const dropBox = document.getElementById('dropBox');
+    const fileInput = document.getElementById('fileInput');
+    let fileData = null;
+
+    dropBox.addEventListener('click', () => fileInput.click());
+    dropBox.addEventListener('dragover', e => { e.preventDefault(); dropBox.style.background = '#eef'; });
+    dropBox.addEventListener('dragleave', () => dropBox.style.background = '');
+    dropBox.addEventListener('drop', e => {
+      e.preventDefault();
+      fileData = e.dataTransfer.files[0];
+      dropBox.textContent = "File: " + fileData.name;
+    });
+
+    fileInput.addEventListener('change', () => {
+      fileData = fileInput.files[0];
+      dropBox.textContent = "File: " + fileData.name;
+    });
+
+    function submitTask() {
+      const desc = document.getElementById('desc').value;
+      if (!fileData || !desc) {
+        alert("Please add a file and description!");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        tasks.push({ description: desc, fileName: fileData.name, fileData: e.target.result, status: 'pending' });
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        alert("Task submitted!");
+        location.href = 'board.html';
+      };
+      reader.readAsDataURL(fileData);
+    }
+  </script>
+</body>
+</html>
