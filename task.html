@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <link rel="icon" type="image/jpeg" href="S.jpg" sizes="16x16">
-<link rel="icon" type="image/jpeg" href="S.jpg" sizes="32x32">
-<link rel="icon" type="image/jpeg" href="S.jpg" sizes="48x48">
+  <link rel="icon" type="image/jpeg" href="S.jpg" sizes="32x32">
+  <link rel="icon" type="image/jpeg" href="S.jpg" sizes="48x48">
   <meta charset="UTF-8">
   <title>Upload Task</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,6 +36,7 @@
       border-radius: 12px;
       box-shadow: 0 6px 16px rgba(0,0,0,0.25);
       margin: auto;
+      opacity: 0.8;
     }
 
     h2 {
@@ -45,6 +46,7 @@
       text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
     }
 
+    /* Drop Box */
     .drop-box {
       width: 100%;
       height: 150px;
@@ -58,12 +60,38 @@
       color: #eee;
       transition: background 0.3s ease, box-shadow 0.3s ease;
     }
-
     .drop-box:hover {
       box-shadow: 0 0 12px #21cbf3;
     }
 
-    textarea, select {
+    /* Name Textarea */
+    .name-box {
+      width: 50%;
+      margin-bottom: 15px;
+      border: 1px solid #4caf50;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 14px;
+      color: #333;
+      background: #f9fff9;
+    }
+
+    /* Description Textarea */
+    .desc-box {
+      width: 95%;
+      height: 80px;
+      margin-bottom: 15px;
+      border: 1px solid #2196f3;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 14px;
+      color: #333;
+      background: #f9fbff;
+      resize: vertical;
+    }
+
+    /* Select Box */
+    .select-box {
       width: 100%;
       margin-bottom: 15px;
       border: 1px solid #ccc;
@@ -71,11 +99,6 @@
       padding: 10px;
       font-size: 14px;
       color: #333;
-    }
-
-    textarea {
-      height: 80px;
-      resize: vertical;
     }
 
     button {
@@ -95,6 +118,14 @@
       box-shadow: 0 0 12px #2196f3;
     }
 
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      opacity: 0.7;
+      color: #fff;
+    }
+
     @media (max-width: 768px) {
       .container { padding: 20px; }
       h2 { font-size: 20px; }
@@ -112,17 +143,26 @@
   <canvas id="grid"></canvas>
   <div class="container">
     <h2>Upload Task</h2>
+
     <div class="drop-box" id="dropBox">Drag & Drop File Here</div>
     <input type="file" id="fileInput" hidden>
-    <textarea id="userName" placeholder="Enter your name"></textarea>
-    <textarea id="desc" placeholder="Enter task description..."></textarea>
+
+    <textarea id="userName" class="name-box" placeholder="Enter your name"></textarea>
+    <textarea id="desc" class="desc-box" placeholder="Enter task description..."></textarea>
+
     <label for="sendTo">Where to send:</label>
-    <select id="sendTo">
+    <select id="sendTo" class="select-box">
       <option value="public">Public (Visible to all)</option>
       <option value="zei">Zei (Visible to Zei only)</option>
     </select>
+
     <button onclick="submitTask()">Submit Task</button>
+
+
   </div>
+      <div class="footer">
+      Developed by Shawn Kent S. Prades 
+    </div>
 
   <script>
     // 🔹 Glow Grid Background
@@ -212,7 +252,7 @@
       dropBox.style.background = '';
     });
 
-    fileInput.addEventListener('change', () => {
+        fileInput.addEventListener('change', () => {
       fileData = fileInput.files[0];
       dropBox.textContent = "File: " + fileData.name;
     });
@@ -233,13 +273,18 @@
       formData.append('description', desc);
       formData.append('sendTo', sendTo);
 
-      const res = await fetch('https://sharedtask.onrender.com/upload', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await res.json();
-      alert(data.message);
-      location.href = 'board.html';
+      try {
+        const res = await fetch('https://sharedtask.onrender.com/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        alert(data.message);
+        location.href = 'board.html';
+      } catch (error) {
+        alert("Upload failed. Please try again.");
+        console.error(error);
+      }
     }
   </script>
 </body>
