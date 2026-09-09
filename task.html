@@ -28,15 +28,15 @@
 
     .container {
       position: relative;
-      width: 100%;
-      max-width: 500px;
+      width: 90%;
+      max-width: 600px;
       background: rgba(255,255,255,0.1);
       backdrop-filter: blur(12px);
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-      margin: auto;
-      opacity: 0.8;
+      margin: 40px auto;
+      opacity: 0.9;
     }
 
     h2 {
@@ -49,7 +49,7 @@
     /* Drop Box */
     .drop-box {
       width: 100%;
-      height: 150px;
+      min-height: 120px;
       border: 2px dashed #21cbf3;
       border-radius: 8px;
       display: flex;
@@ -58,6 +58,7 @@
       margin-bottom: 15px;
       cursor: pointer;
       color: #eee;
+      text-align: center;
       transition: background 0.3s ease, box-shadow 0.3s ease;
     }
     .drop-box:hover {
@@ -66,7 +67,7 @@
 
     /* Name Textarea */
     .name-box {
-      width: 50%;
+      width: 50;
       margin-bottom: 15px;
       border: 1px solid #4caf50;
       border-radius: 6px;
@@ -79,7 +80,7 @@
     /* Description Textarea */
     .desc-box {
       width: 95%;
-      height: 80px;
+      min-height: 100px;
       margin-bottom: 15px;
       border: 1px solid #2196f3;
       border-radius: 6px;
@@ -92,7 +93,7 @@
 
     /* Select Box */
     .select-box {
-      width: 100%;
+      width: 70%;
       margin-bottom: 15px;
       border: 1px solid #ccc;
       border-radius: 6px;
@@ -126,16 +127,20 @@
       color: #fff;
     }
 
+    /* Responsive Adjustments */
     @media (max-width: 768px) {
       .container { padding: 20px; }
       h2 { font-size: 20px; }
       button { font-size: 14px; padding: 10px; }
+      .desc-box { min-height: 80px; }
     }
 
     @media (max-width: 480px) {
-      h2 { font-size: 18px; }
       .container { padding: 15px; }
+      h2 { font-size: 18px; }
       button { font-size: 13px; padding: 8px; }
+      .drop-box { min-height: 100px; font-size: 14px; }
+      .name-box, .desc-box, .select-box { font-size: 13px; }
     }
   </style>
 </head>
@@ -158,11 +163,10 @@
 
     <button onclick="submitTask()">Submit Task</button>
 
-
-  </div>
-      <div class="footer">
-      Developed by Shawn Kent S. Prades 
+    <div class="footer">
+      Developed by Shawn Kent S. Prades — v1.0.1.0
     </div>
+  </div>
 
   <script>
     // 🔹 Glow Grid Background
@@ -240,19 +244,14 @@
     let fileData = null;
 
     dropBox.addEventListener('click', () => fileInput.click());
-    dropBox.addEventListener('dragover', e => {
-      e.preventDefault();
-      dropBox.style.background = '#e3f2fd';
-    });
-    dropBox.addEventListener('dragleave', () => dropBox.style.background = '');
-    dropBox.addEventListener('drop', e => {
+        dropBox.addEventListener('drop', e => {
       e.preventDefault();
       fileData = e.dataTransfer.files[0];
       dropBox.textContent = "File: " + fileData.name;
       dropBox.style.background = '';
     });
 
-        fileInput.addEventListener('change', () => {
+    fileInput.addEventListener('change', () => {
       fileData = fileInput.files[0];
       dropBox.textContent = "File: " + fileData.name;
     });
