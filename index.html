@@ -52,16 +52,141 @@
     }
 
     .card {
-      background: rgba(255,255,255,0.1);
+      background: rgba(10, 24, 34, 0.78);
       backdrop-filter: blur(12px);
-      border-radius: 15px;
+      border: 1px solid rgba(33, 203, 243, 0.45);
+      border-radius: 12px;
       padding: 30px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25), 0 0 18px rgba(33,203,243,0.12);
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 20px;
-      opacity: 0.8;
+    }
+
+    .whats-new {
+      position: fixed;
+      top: 64px;
+      right: 18px;
+      z-index: 2;
+      width: min(310px, calc(100vw - 36px));
+      box-sizing: border-box;
+      background: rgba(10, 24, 34, 0.78);
+      border: 1px solid rgba(33, 203, 243, 0.45);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: left;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      max-height: min(390px, calc(100vh - 36px));
+      overflow-y: auto;
+    }
+
+    .whats-new.hidden {
+      display: none;
+    }
+
+    .whats-new-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.16);
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .whats-new h2,
+    .whats-new h4 {
+      color: #21cbf3;
+      margin: 0 0 10px;
+    }
+
+    .whats-new h2 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+
+    .whats-new h4 {
+      font-size: 0.9rem;
+      margin-top: 16px;
+      margin-bottom: 7px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .update-date {
+      color: #9edbe9;
+      font-size: 0.72rem;
+      white-space: nowrap;
+    }
+
+    .whats-new p,
+    .whats-new li {
+      color: #e7f8fc;
+      line-height: 1.4;
+      font-size: 0.86rem;
+    }
+
+    .whats-new p {
+      margin: 0;
+    }
+
+    .update-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .update-list li {
+      position: relative;
+      padding-left: 14px;
+    }
+
+    .update-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #21cbf3;
+      box-shadow: 0 0 7px #21cbf3;
+    }
+
+    .developer-line {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: #bcecf5 !important;
+      font-size: 0.8rem !important;
+    }
+
+    .developer-line img {
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid #21cbf3;
+      box-shadow: 0 0 10px rgba(33,203,243,0.45);
+    }
+
+    .updates-button {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      z-index: 3;
+      width: auto;
+      min-width: 132px;
+      flex: 0 0 auto;
+      padding: 9px 13px;
+      font-size: 13px;
+      background: transparent;
+      border: 1px solid #21cbf3;
+      color: #21cbf3;
     }
 
     .button-group {
@@ -71,6 +196,22 @@
       gap: 20px;
       width: 100%;
       max-width: 500px;
+    }
+
+    .button-group button {
+      background: transparent;
+      color: #21cbf3;
+      border: 1px solid #21cbf3;
+      border-radius: 6px;
+      box-shadow: none;
+    }
+
+    .button-group button:hover,
+    .updates-button:hover {
+      background: rgba(33,203,243,0.12);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px rgba(33,203,243,0.55);
     }
 
     button {
@@ -101,6 +242,18 @@
       h3 { font-size: 1rem; }
       button { font-size: 15px; padding: 12px 20px; }
       .button-group { flex-direction: column; }
+      .card { padding: 20px; }
+      .button-group { gap: 12px; }
+      .button-group button {
+        flex: 0 0 auto;
+        width: min(100%, 220px);
+        min-height: 48px;
+        padding: 11px 14px;
+        font-size: 14px;
+      }
+      .whats-new { top: 64px; right: 12px; width: calc(100vw - 24px); max-height: calc(100vh - 76px); }
+      .updates-button { top: 12px; right: 12px; }
+      .whats-new p, .whats-new li { font-size: 0.86rem; }
     }
 
     .footer {
@@ -115,6 +268,24 @@
   </style>
 </head>
 <body>
+    <section class="whats-new hidden" id="whatsNewPanel" aria-live="polite">
+        <div class="whats-new-header">
+          <h2>✨What's New</h2>
+          <span class="update-date">Sep 2026</span>
+        </div>
+        <ul class="update-list">
+          <li>Comments</li>
+          <li>Descriptions can be expanded with See more and See less.</li>
+          <li>Choose the original filename or rename it before downloading.</li>
+          <li>Descriptions can be copied to the clipboard with a single click.</li>
+          <li>Task files are removed after Done, Wait, or Admin Delete.</li>
+        </ul>
+        <h4>About Shared Task</h4>
+        <p>Upload, share, download, and discuss tasks in one place. Public tasks are visible to everyone; Zei tasks stay in the Zei area.</p>
+        <h4>Developer</h4>
+        <p class="developer-line"><img src="profile.jpg" alt="Kent S. Prades"> Kent S. Prades | IT student and aspiring web developer</p>
+      </section>
+
   <canvas id="grid"></canvas>
   <div class="content">
     <h1>Shared Task</h1>
@@ -125,6 +296,7 @@
         <button onclick="location.href='board.html'">📋 See Task Board</button>
       </div>
     </div>
+    <button class="updates-button" id="toggleWhatsNewButton" type="button" aria-expanded="false">✨ What's New</button>
   </div>
 
   <div class="footer">
@@ -225,6 +397,14 @@
 
     initGrid();
     drawGrid();
+
+    const toggleWhatsNewButton = document.getElementById('toggleWhatsNewButton');
+    const whatsNewPanel = document.getElementById('whatsNewPanel');
+    toggleWhatsNewButton.addEventListener('click', () => {
+      const isHidden = whatsNewPanel.classList.toggle('hidden');
+      toggleWhatsNewButton.setAttribute('aria-expanded', String(!isHidden));
+      toggleWhatsNewButton.textContent = isHidden ? "✨ What's New" : '✕ Hide Updates';
+    });
   </script>
 </body>
 </html>

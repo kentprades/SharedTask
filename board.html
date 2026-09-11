@@ -406,6 +406,7 @@
         const commentsSection = card.querySelector('.comments');
         const toggleCommentsBtn = card.querySelector('.toggle-comments-btn');
         let commentCount = 0;
+        let renderedCommentsKey = '';
 
         function updateToggleLabel() {
           const isHidden = commentsSection.classList.contains('hidden');
@@ -418,6 +419,9 @@
         };
 
         function renderComments(comments) {
+          const commentsKey = JSON.stringify(comments);
+          if (commentsKey === renderedCommentsKey) return;
+          renderedCommentsKey = commentsKey;
           commentCount = comments.length;
           updateToggleLabel();
           commentList.innerHTML = '';
@@ -463,6 +467,9 @@
         loadComments().catch(() => {
           commentMessage.textContent = 'Comments are temporarily unavailable.';
         });
+        setInterval(() => {
+          loadComments().catch(() => {});
+        }, 5000);
 
                 if (doneBtn) {
           doneBtn.onclick = async () => {
