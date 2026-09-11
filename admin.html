@@ -53,12 +53,13 @@
     }
 
     .task-card {
-      background: rgba(255,255,255,0.1);
+      background: rgba(10, 24, 34, 0.78);
       backdrop-filter: blur(12px);
+      border: 1px solid rgba(33, 203, 243, 0.45);
       border-radius: 12px;
       padding: 20px;
       width: 250px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25), 0 0 18px rgba(33,203,243,0.12);
       transition: opacity 1s ease, transform 0.3s ease, box-shadow 0.3s ease;
     }
 
@@ -209,6 +210,22 @@
     .download-btn { background: #ff9800; color: #fff; }
     .download-btn:hover { background: #e68900; box-shadow: 0 0 10px #ff9800; }
 
+    .rename-download {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(33,203,243,0.4);
+      border-radius: 6px;
+      padding: 10px;
+      margin: 5px 0;
+    }
+
+    .rename-download.hidden { display: none; }
+    .rename-download p { margin: 0 0 8px; color: #fff; font-size: 0.85rem; }
+    .rename-download input { box-sizing: border-box; width: 100%; padding: 8px; border: 0; border-radius: 4px; margin-bottom: 6px; }
+    .rename-download button { margin: 0 4px 0 0; }
+    .rename-editor.hidden { display: none; }
+    .rename-confirm-btn { background: #21cbf3; color: #10202a; }
+    .rename-cancel-btn { background: #607d8b; color: #fff; }
+
     .done-btn { background: #4caf50; color: #fff; }
     .done-btn:hover { background: #3e8e41; box-shadow: 0 0 10px #4caf50; }
 
@@ -352,6 +369,16 @@
         <button class="see-more-btn" type="button">See more</button>
         <button class="copy-btn" type="button">Copy description</button>
         <button class="download-btn">Download</button>
+        <div class="rename-download hidden">
+          <p>Do you want to rename the file?</p>
+          <button class="rename-yes-btn" type="button">Yes</button>
+          <button class="rename-no-btn" type="button">No</button>
+          <div class="rename-editor hidden">
+            <input class="rename-input" type="text" aria-label="New file name">
+            <button class="rename-confirm-btn" type="button">Download renamed file</button>
+            <button class="rename-cancel-btn" type="button">Cancel</button>
+          </div>
+        </div>
         <button class="done-btn">Delete</button>
         <div class="countdown"></div>
         <button class="toggle-comments-btn" type="button">Show comments</button>
@@ -377,11 +404,63 @@
       };
 
       const downloadBtn = card.querySelector('.download-btn');
+      const renameDownload = card.querySelector('.rename-download');
+      const renameYesBtn = card.querySelector('.rename-yes-btn');
+      const renameNoBtn = card.querySelector('.rename-no-btn');
+      const renameEditor = card.querySelector('.rename-editor');
+      const renameInput = card.querySelector('.rename-input');
+      const renameConfirmBtn = card.querySelector('.rename-confirm-btn');
+      const renameCancelBtn = card.querySelector('.rename-cancel-btn');
+
+      async function downloadFile(fileName) {
+        const response = await fetch('https://sharedtask.onrender.com' + task.fileUrl);
+        if (!response.ok) throw new Error('Download failed');
+        const fileUrl = URL.createObjectURL(await response.blob());
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(fileUrl);
+      }
+
       downloadBtn.onclick = () => {
-        const a = document.createElement('a');
-        a.href = 'https://sharedtask.onrender.com' + task.fileUrl;
-        a.download = task.fileName;
-        a.click();
+        renameEditor.classList.add('hidden');
+        renameDownload.classList.remove('hidden');
+      };
+
+      renameYesBtn.onclick = () => {
+        renameInput.value = task.fileName;
+        renameEditor.classList.remove('hidden');
+        renameInput.focus();
+      };
+
+      renameNoBtn.onclick = async () => {
+        try {
+          await downloadFile(task.fileName);
+          renameDownload.classList.add('hidden');
+        } catch (error) {
+          alert('Download failed. Please try again.');
+        }
+      };
+
+      renameConfirmBtn.onclick = async () => {
+        const fileName = renameInput.value.trim();
+        if (!fileName) return;
+        renameConfirmBtn.disabled = true;
+        try {
+          await downloadFile(fileName);
+          renameDownload.classList.add('hidden');
+        } catch (error) {
+          alert('Download failed. Please try again.');
+        } finally {
+          renameConfirmBtn.disabled = false;
+        }
+      };
+
+      renameCancelBtn.onclick = () => {
+        renameDownload.classList.add('hidden');
       };
 
       const copyBtn = card.querySelector('.copy-btn');
