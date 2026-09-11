@@ -65,6 +65,62 @@
       box-shadow: 0 0 12px #21cbf3;
     }
 
+    .drop-box.drag-over {
+      background: rgba(33,203,243,0.16);
+      box-shadow: 0 0 18px #21cbf3;
+    }
+
+    .selected-files {
+      width: 100%;
+      box-sizing: border-box;
+      margin: -5px 0 15px;
+      padding: 0;
+      list-style: none;
+      color: #dffaff;
+      font-size: 0.9rem;
+    }
+
+    .selected-files li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 6px 8px;
+      margin-top: 5px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 5px;
+      overflow-wrap: anywhere;
+    }
+
+    .selected-files li span {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .remove-file-btn {
+      flex: 0 0 auto;
+      width: 28px;
+      min-height: 28px;
+      margin: 0;
+      padding: 0;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 50%;
+      background: transparent;
+      color: #ff8a80;
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .remove-file-btn:hover {
+      background: rgba(255,82,82,0.18);
+      box-shadow: 0 0 8px rgba(255,82,82,0.55);
+    }
+
+    .file-count {
+      color: #9edbe9;
+      font-size: 0.85rem;
+    }
+
     /* Name Textarea */
     .name-box {
       width: 50;
@@ -149,8 +205,9 @@
   <div class="container">
     <h2>Upload Task</h2>
 
-    <div class="drop-box" id="dropBox">Drag & Drop File Here</div>
-    <input type="file" id="fileInput" hidden>
+    <div class="drop-box" id="dropBox">Drag & Drop Files Here (up to 10)</div>
+    <input type="file" id="fileInput" multiple hidden>
+    <ul class="selected-files" id="selectedFiles" aria-live="polite"></ul>
 
     <textarea id="userName" class="name-box" placeholder="Enter your name"></textarea>
     <textarea id="desc" class="desc-box" placeholder="Enter task description..."></textarea>
@@ -241,34 +298,89 @@
     // 🔹 Upload Logic
     const dropBox = document.getElementById('dropBox');
     const fileInput = document.getElementById('fileInput');
-    let fileData = null;
+    const selectedFiles = document.getElementById('selectedFiles');
+    let fileData = [];
 
     dropBox.addEventListener('click', () => fileInput.click());
-        dropBox.addEventListener('drop', e => {
+    dropBox.addEventListener('dragenter', e => {
       e.preventDefault();
-      fileData = e.dataTransfer.files[0];
-      dropBox.textContent = "File: " + fileData.name;
-      dropBox.style.background = '';
+      dropBox.classList.add('drag-over');
+    });
+
+    dropBox.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      dropBox.classList.add('drag-over');
+    });
+
+    dropBox.addEventListener('dragleave', e => {
+      if (!dropBox.contains(e.relatedTarget)) dropBox.classList.remove('drag-over');
+    });
+
+    dropBox.addEventListener('drop', e => {
+      e.preventDefault();
+      dropBox.classList.remove('drag-over');
+      setFiles(Array.from(e.dataTransfer.files));
     });
 
     fileInput.addEventListener('change', () => {
-      fileData = fileInput.files[0];
-      dropBox.textContent = "File: " + fileData.name;
+      setFiles(Array.from(fileInput.files));
     });
+
+    function setFiles(files) {
+      const newFiles = files.filter(file => !fileData.some(existingFile =>
+        existingFile.name === file.name &&
+        existingFile.size === file.size &&
+        existingFile.lastModified === file.lastModified
+      ));
+      const availableSlots = 10 - fileData.length;
+
+      if (newFiles.length > availableSlots) {
+        alert('You can upload a maximum of 10 files per submission.');
+      }
+
+      fileData = fileData.concat(newFiles.slice(0, Math.max(0, availableSlots)));
+      fileInput.value = '';
+      renderSelectedFiles();
+    }
+
+    function renderSelectedFiles() {
+      selectedFiles.innerHTML = '';
+      dropBox.textContent = fileData.length
+        ? `${fileData.length} file${fileData.length === 1 ? '' : 's'} selected`
+        : 'Drag & Drop Files Here (up to 10)';
+      fileData.forEach((file, index) => {
+        const item = document.createElement('li');
+        const name = document.createElement('span');
+        name.textContent = file.name;
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'remove-file-btn';
+        removeButton.title = `Remove ${file.name}`;
+        removeButton.setAttribute('aria-label', `Remove ${file.name}`);
+        removeButton.textContent = '×';
+        removeButton.addEventListener('click', () => {
+          fileData.splice(index, 1);
+          renderSelectedFiles();
+        });
+        item.append(name, removeButton);
+        selectedFiles.appendChild(item);
+      });
+    }
 
     async function submitTask() {
       const userName = document.getElementById('userName').value.trim();
       const desc = document.getElementById('desc').value.trim();
       const sendTo = document.getElementById('sendTo').value;
 
-      if (!fileData || !userName || !desc) {
-        alert("Please add your name, a file, and a description!");
+      if (!fileData.length || !userName || !desc) {
+        alert("Please add your name, at least one file, and a description!");
         return;
       }
 
       const formData = new FormData();
       formData.append('userName', userName);
-      formData.append('taskFile', fileData);
+      fileData.forEach(file => formData.append('taskFiles', file));
       formData.append('description', desc);
       formData.append('sendTo', sendTo);
 
@@ -278,10 +390,11 @@
           body: formData
         });
         const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Upload failed.');
         alert(data.message);
         location.href = 'board.html';
       } catch (error) {
-        alert("Upload failed. Please try again.");
+        alert(error.message || "Upload failed. Please try again.");
         console.error(error);
       }
     }

@@ -54,33 +54,52 @@ app.use(express.json());
 // In-memory task storage
 let tasks = [];
 
-// Upload task
-app.post('/upload', upload.single('taskFile'), (req, res) => {
-  const savedFileName = req.file.filename; // ✅ unique filename
-  const taskId = Date.now();
-  const task = {
-    id: taskId,
-    userName: req.body.userName,
-    description: req.body.description,
-    fileName: req.file.originalname,       // original name for display
-    fileUrl: '/download/' + taskId,
-    filePath: req.file.path,               // filesystem path for deletion
-    status: 'pending',
-    sendTo: req.body.sendTo || 'public'
-  };
-  tasks.push(task);
-  res.json({ message: 'Task submitted!' });
+// Upload up to 10 individual task files per submission
+app.post('/upload', (req, res, next) => {
+  upload.array('taskFiles', 10)(req, res, error => {
+    if (error) {
+      return res.status(400).json({
+        message: error.code === 'LIMIT_FILE_COUNT'
+          ? 'You can upload a maximum of 10 files per submission.'
+          : 'Upload could not be processed. Please select the files again.'
+      });
+    }
+    next();
+  });
+}, (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ message: 'Please select at least one file.' });
+  }
+
+  const submittedAt = Date.now();
+  const newTasks = req.files.map((file, index) => {
+    const taskId = submittedAt + index;
+    return {
+      id: taskId,
+      userName: req.body.userName,
+      description: req.body.description,
+      fileName: file.originalname,
+      fileUrl: '/download/' + taskId,
+      filePath: file.path,
+      status: 'pending',
+      sendTo: req.body.sendTo || 'public'
+    };
+  });
+
+  tasks.push(...newTasks);
+  res.json({
+    message: `${newTasks.length} task file${newTasks.length === 1 ? '' : 's'} submitted!`
+  });
 });
 
-// Download a task file with the sender mark in its downloaded filename
+// Download a task file using its original filename
 app.get('/download/:id', (req, res) => {
   const task = tasks.find(item => item.id == req.params.id);
   if (!task || !fs.existsSync(task.filePath)) {
     return res.status(404).json({ message: 'File not found.' });
   }
 
-  const downloadName = `by-ST-${path.basename(task.fileName)}`;
-  res.download(task.filePath, downloadName);
+  res.download(task.filePath, path.basename(task.fileName));
 });
 
 // Get all tasks
