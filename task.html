@@ -1,58 +1,254 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/jpeg" href="S.jpg" sizes="16x16">
+  <link rel="icon" type="image/jpeg" href="S.jpg" sizes="32x32">
+  <link rel="icon" type="image/jpeg" href="S.jpg" sizes="48x48">
   <meta charset="UTF-8">
   <title>Upload Task</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: 'Segoe UI', Arial; background: #f4f4f4; margin: 0; padding: 40px; }
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: #111;
+      z-index: -1;
+    }
+
     .container {
-      max-width: 500px; margin: auto; background: #fff; padding: 30px;
-      border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      position: relative;
+      width: 90%;
+      max-width: 600px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(12px);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+      margin: 40px auto;
+      opacity: 0.9;
     }
-    h2 { text-align: center; margin-bottom: 20px; }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #21cbf3;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+    }
+
+    /* Drop Box */
     .drop-box {
-      width: 100%; height: 150px; border: 2px dashed #2196f3; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 15px; cursor: pointer; color: #555;
+      width: 100%;
+      min-height: 120px;
+      border: 2px dashed #21cbf3;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+      cursor: pointer;
+      color: #eee;
+      text-align: center;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
     }
-    textarea, select {
-      width: 100%; margin-bottom: 15px;
-      border: 1px solid #ccc; border-radius: 6px; padding: 10px;
+    .drop-box:hover {
+      box-shadow: 0 0 12px #21cbf3;
     }
-    textarea { height: 80px; }
+
+    /* Name Textarea */
+    .name-box {
+      width: 50;
+      margin-bottom: 15px;
+      border: 1px solid #4caf50;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 14px;
+      color: #333;
+      background: #f9fff9;
+    }
+
+    /* Description Textarea */
+    .desc-box {
+      width: 95%;
+      min-height: 100px;
+      margin-bottom: 15px;
+      border: 1px solid #2196f3;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 14px;
+      color: #333;
+      background: #f9fbff;
+      resize: vertical;
+    }
+
+    /* Select Box */
+    .select-box {
+      width: 70%;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 14px;
+      color: #333;
+    }
+
     button {
-      width: 100%; padding: 12px; background: #2196f3; color: #fff;
-      border: none; border-radius: 6px; cursor: pointer; font-size: 16px;
+      width: 100%;
+      padding: 12px;
+      background: #2196f3;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
     }
-    button:hover { background: #1976d2; }
+
+    button:hover {
+      background: #1976d2;
+      box-shadow: 0 0 12px #2196f3;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      opacity: 0.7;
+      color: #fff;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .container { padding: 20px; }
+      h2 { font-size: 20px; }
+      button { font-size: 14px; padding: 10px; }
+      .desc-box { min-height: 80px; }
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 15px; }
+      h2 { font-size: 18px; }
+      button { font-size: 13px; padding: 8px; }
+      .drop-box { min-height: 100px; font-size: 14px; }
+      .name-box, .desc-box, .select-box { font-size: 13px; }
+    }
   </style>
 </head>
 <body>
+  <canvas id="grid"></canvas>
   <div class="container">
     <h2>Upload Task</h2>
+
     <div class="drop-box" id="dropBox">Drag & Drop File Here</div>
     <input type="file" id="fileInput" hidden>
-    <textarea id="desc" placeholder="Enter task description..."></textarea>
+
+    <textarea id="userName" class="name-box" placeholder="Enter your name"></textarea>
+    <textarea id="desc" class="desc-box" placeholder="Enter task description..."></textarea>
+
     <label for="sendTo">Where to send:</label>
-    <select id="sendTo">
-      <option value="public">Public</option>
-      <option value="zei">Zei</option>
+    <select id="sendTo" class="select-box">
+      <option value="public">Public (Visible to all)</option>
+      <option value="zei">Zei (Visible to Zei only)</option>
     </select>
+
     <button onclick="submitTask()">Submit Task</button>
+
+    <div class="footer">
+      Developed by Shawn Kent S. Prades — v1.0.1.0
+    </div>
   </div>
 
   <script>
+    // 🔹 Glow Grid Background
+    const canvas = document.getElementById("grid");
+    const ctx = canvas.getContext("2d");
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    let mouse = { x: -9999, y: -9999 };
+    const squareSize = 80;
+    const grid = [];
+
+    function initGrid() {
+      grid.length = 0;
+      for (let x = 0; x < width; x += squareSize) {
+        for (let y = 0; y < height; y += squareSize) {
+          grid.push({ x, y, alpha: 0, fading: false, lastTouched: 0 });
+        }
+      }
+    }
+
+    function getCellAt(x, y) {
+      return grid.find(cell =>
+        x >= cell.x && x < cell.x + squareSize &&
+        y >= cell.y && y < cell.y + squareSize
+      );
+    }
+
+    window.addEventListener("resize", () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      initGrid();
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+      const cell = getCellAt(mouse.x, mouse.y);
+      if (cell && cell.alpha === 0) {
+        cell.alpha = 1;
+        cell.lastTouched = Date.now();
+        cell.fading = false;
+      }
+    });
+
+    function drawGrid() {
+      ctx.clearRect(0, 0, width, height);
+      const now = Date.now();
+      for (let cell of grid) {
+        if (cell.alpha > 0 && !cell.fading && now - cell.lastTouched > 500) {
+          cell.fading = true;
+        }
+        if (cell.fading) {
+          cell.alpha -= 0.02;
+          if (cell.alpha <= 0) { cell.alpha = 0; cell.fading = false; }
+        }
+        if (cell.alpha > 0) {
+          const centerX = cell.x + squareSize / 2;
+          const centerY = cell.y + squareSize / 2;
+          const gradient = ctx.createRadialGradient(centerX, centerY, 5, centerX, centerY, squareSize);
+          gradient.addColorStop(0, `rgba(0, 255, 204, ${cell.alpha})`);
+          gradient.addColorStop(1, `rgba(0, 255, 204, 0)`);
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 1.3;
+          ctx.strokeRect(cell.x + 0.5, cell.y + 0.5, squareSize - 1, squareSize - 1);
+        }
+      }
+      requestAnimationFrame(drawGrid);
+    }
+    initGrid();
+    drawGrid();
+
+    // 🔹 Upload Logic
     const dropBox = document.getElementById('dropBox');
     const fileInput = document.getElementById('fileInput');
     let fileData = null;
 
     dropBox.addEventListener('click', () => fileInput.click());
-    dropBox.addEventListener('dragover', e => { e.preventDefault(); dropBox.style.background = '#e3f2fd'; });
-    dropBox.addEventListener('dragleave', () => dropBox.style.background = '');
-    dropBox.addEventListener('drop', e => {
+        dropBox.addEventListener('drop', e => {
       e.preventDefault();
       fileData = e.dataTransfer.files[0];
       dropBox.textContent = "File: " + fileData.name;
+      dropBox.style.background = '';
     });
 
     fileInput.addEventListener('change', () => {
@@ -61,26 +257,33 @@
     });
 
     async function submitTask() {
-      const desc = document.getElementById('desc').value;
+      const userName = document.getElementById('userName').value.trim();
+      const desc = document.getElementById('desc').value.trim();
       const sendTo = document.getElementById('sendTo').value;
 
-      if (!fileData || !desc) {
-        alert("Please add a file and description!");
+      if (!fileData || !userName || !desc) {
+        alert("Please add your name, a file, and a description!");
         return;
       }
 
       const formData = new FormData();
+      formData.append('userName', userName);
       formData.append('taskFile', fileData);
       formData.append('description', desc);
       formData.append('sendTo', sendTo);
 
-      const res = await fetch('https://sharedtask.onrender.com/upload', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await res.json();
-      alert(data.message);
-      location.href = 'board.html';
+      try {
+        const res = await fetch('https://sharedtask.onrender.com/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        alert(data.message);
+        location.href = 'board.html';
+      } catch (error) {
+        alert("Upload failed. Please try again.");
+        console.error(error);
+      }
     }
   </script>
 </body>
