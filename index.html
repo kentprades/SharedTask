@@ -242,6 +242,15 @@
       h3 { font-size: 1rem; }
       button { font-size: 15px; padding: 12px 20px; }
       .button-group { flex-direction: column; }
+      .card { padding: 20px; }
+      .button-group { gap: 12px; }
+      .button-group button {
+        flex: 0 0 auto;
+        width: min(100%, 220px);
+        min-height: 48px;
+        padding: 11px 14px;
+        font-size: 14px;
+      }
       .whats-new { top: 64px; right: 12px; width: calc(100vw - 24px); max-height: calc(100vh - 76px); }
       .updates-button { top: 12px; right: 12px; }
       .whats-new p, .whats-new li { font-size: 0.86rem; }
@@ -259,7 +268,7 @@
   </style>
 </head>
 <body>
-    <section class="whats-new" id="whatsNewPanel" aria-live="polite">
+    <section class="whats-new hidden" id="whatsNewPanel" aria-live="polite">
         <div class="whats-new-header">
           <h2>✨What's New</h2>
           <span class="update-date">Sep 2026</span>
@@ -287,7 +296,7 @@
         <button onclick="location.href='board.html'">📋 See Task Board</button>
       </div>
     </div>
-    <button class="updates-button" id="toggleWhatsNewButton" type="button" aria-expanded="true">✕ Hide Updates</button>
+    <button class="updates-button" id="toggleWhatsNewButton" type="button" aria-expanded="false">✨ What's New</button>
   </div>
 
   <div class="footer">
