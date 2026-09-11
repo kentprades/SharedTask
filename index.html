@@ -229,6 +229,32 @@
       box-shadow: 0 0 15px rgba(33,203,243,0.55);
     }
 
+    .project-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .project-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 10px;
+      border: 1px solid #21cbf3;
+      border-radius: 6px;
+      color: #21cbf3;
+      font-size: 0.8rem;
+      text-decoration: none;
+      transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .project-link:hover {
+      background: rgba(33,203,243,0.12);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(33,203,243,0.55);
+    }
+
     button {
       flex: 1 1 200px;
       padding: 15px 30px;
@@ -316,6 +342,11 @@
         <p>Upload, share, download, and discuss tasks in one place. Public tasks are visible to everyone; Zei tasks stay in the Zei area.</p>
         <h4>Developer</h4>
         <p class="developer-line"><img src="profile.jpg" alt="Kent S. Prades"> Kent S. Prades | IT student and aspiring web developer</p>
+        <h4>More Projects</h4>
+        <div class="project-links">
+          <a class="project-link" href="https://zei-gamez.vercel.app/" target="_blank" rel="noopener noreferrer">Zei Gamez</a>
+          <a class="project-link" href="https://zeimusic.onrender.com/" target="_blank" rel="noopener noreferrer">Zei Music</a>
+        </div>
       </section>
 
   <div class="footer">
