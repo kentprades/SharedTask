@@ -1,38 +1,296 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/jpeg" href="S.jpg" sizes="16x16">
+<link rel="icon" type="image/jpeg" href="S.jpg" sizes="32x32">
+<link rel="icon" type="image/jpeg" href="S.jpg" sizes="48x48">
   <meta charset="UTF-8">
   <title>Task Board</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: 'Segoe UI', Arial; background: #f4f4f4; margin: 0; padding: 40px; }
-    h2 { text-align: center; margin-bottom: 20px; }
-    .task-board { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: #111;
+      z-index: -1;
+    }
+
+    .content {
+      position: relative;
+      padding: 40px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #21cbf3;
+      font-size: 2rem;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+    }
+
+    .task-board {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      width: 100%;
+      max-width: 1200px;
+    }
+
     .task-card {
-      background: #fff; border: 1px solid #ccc; border-radius: 10px;
-      padding: 20px; width: 250px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      transition: opacity 1s ease;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(12px);
+      border-radius: 12px;
+      padding: 20px;
+      width: 250px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+      transition: opacity 1s ease, transform 0.3s ease, box-shadow 0.3s ease;
     }
-    .task-card h4 { margin: 0 0 10px 0; color: #2196f3; }
-    .task-card p { margin: 0 0 10px 0; color: #555; }
+
+    .task-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 15px #21cbf3;
+    }
+
+    .task-card h4 {
+      margin: 0 0 10px 0;
+      color: #21cbf3;
+      font-size: 1.1rem;
+    }
+
+    .task-card p {
+      margin: 0 0 10px 0;
+      color: #eee;
+      font-size: 0.95rem;
+    }
+
+    .description {
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .description.collapsed {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      overflow: hidden;
+    }
+
+    .see-more-btn,
+    .see-less-btn {
+      background: transparent;
+      color: #21cbf3;
+      padding: 0;
+      margin: -4px 0 10px;
+    }
+
+    .see-more-btn:hover,
+    .see-less-btn:hover {
+      background: transparent;
+      box-shadow: none;
+      text-decoration: underline;
+    }
+
+    .comments {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      margin-top: 14px;
+      padding-top: 12px;
+    }
+
+    .comments h5 {
+      margin: 0 0 8px;
+      color: #21cbf3;
+      font-size: 0.95rem;
+    }
+
+    .comment-list {
+      max-height: 180px;
+      overflow-y: auto;
+      margin-bottom: 8px;
+    }
+
+    .comment {
+      margin: 0 0 8px;
+      padding: 7px 9px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 5px;
+      overflow-wrap: anywhere;
+    }
+
+    .comment strong {
+      color: #fff;
+    }
+
+    .comment.admin-comment,
+    .comment.admin-comment strong {
+      color: #55c7ff;
+    }
+
+    .comment-form input,
+    .comment-form textarea {
+      box-sizing: border-box;
+      width: 100%;
+      border: 0;
+      border-radius: 5px;
+      padding: 8px;
+      margin-bottom: 6px;
+      font: inherit;
+    }
+
+    .comment-form textarea {
+      min-height: 55px;
+      resize: vertical;
+    }
+
+    .comment-form button {
+      background: #21cbf3;
+      color: #10202a;
+      margin: 0;
+    }
+
+    .comment-message {
+      color: #ffcc80;
+      font-size: 0.85rem;
+      margin: 5px 0 0;
+    }
+
     button {
-      padding: 8px 12px; margin: 5px 0; border: none; border-radius: 6px;
-      cursor: pointer; font-size: 14px;
+      padding: 8px 12px;
+      margin: 5px 0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
     }
+
     .download-btn { background: #ff9800; color: #fff; }
+    .download-btn:hover { background: #e68900; box-shadow: 0 0 10px #ff9800; }
+
     .done-btn { background: #4caf50; color: #fff; }
+    .done-btn:hover { background: #3e8e41; box-shadow: 0 0 10px #4caf50; }
+
     .wait-btn { background: #2196f3; color: #fff; }
-    .completed { background: #d4edda; border-color: #4caf50; }
-    .countdown { font-weight: bold; color: red; margin-top: 5px; }
+    .wait-btn:hover { background: #1976d2; box-shadow: 0 0 10px #2196f3; }
+
+    .completed { background: rgba(76,175,80,0.2); border: 1px solid #4caf50; }
+    .countdown { font-weight: bold; color: #ff5252; margin-top: 5px; }
     .fade-out { opacity: 0; }
+
+    @media (max-width: 1024px) {
+      .task-card { width: 45%; }
+    }
+
+    @media (max-width: 768px) {
+      .content { padding: 20px; }
+      .task-card { width: 100%; }
+      h2 { font-size: 1.6rem; }
+      button { font-size: 13px; padding: 10px 14px; }
+    }
+
+    @media (max-width: 480px) {
+      h2 { font-size: 1.4rem; }
+      .task-card { padding: 15px; }
+      button { font-size: 12px; padding: 8px 12px; }
+    }
   </style>
 </head>
 <body>
-  <h2>Task Board</h2>
-  <div class="task-board" id="taskBoard"></div>
+  <canvas id="grid"></canvas>
+  <div class="content">
+    <h2>Public Task Board</h2>
+    <div class="task-board" id="taskBoard"></div>
+  </div>
 
   <script>
+    // 🔹 Glow Grid Background
+    const canvas = document.getElementById("grid");
+    const ctx = canvas.getContext("2d");
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    let mouse = { x: -9999, y: -9999 };
+    const squareSize = 80;
+    const grid = [];
+
+    function initGrid() {
+      grid.length = 0;
+      for (let x = 0; x < width; x += squareSize) {
+        for (let y = 0; y < height; y += squareSize) {
+          grid.push({ x, y, alpha: 0, fading: false, lastTouched: 0 });
+        }
+      }
+    }
+
+    function getCellAt(x, y) {
+      return grid.find(cell =>
+        x >= cell.x && x < cell.x + squareSize &&
+        y >= cell.y && y < cell.y + squareSize
+      );
+    }
+
+    window.addEventListener("resize", () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      initGrid();
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+      const cell = getCellAt(mouse.x, mouse.y);
+      if (cell && cell.alpha === 0) {
+        cell.alpha = 1;
+        cell.lastTouched = Date.now();
+        cell.fading = false;
+      }
+    });
+
+    function drawGrid() {
+      ctx.clearRect(0, 0, width, height);
+      const now = Date.now();
+      for (let cell of grid) {
+        if (cell.alpha > 0 && !cell.fading && now - cell.lastTouched > 500) {
+          cell.fading = true;
+        }
+        if (cell.fading) {
+          cell.alpha -= 0.02;
+          if (cell.alpha <= 0) { cell.alpha = 0; cell.fading = false; }
+        }
+        if (cell.alpha > 0) {
+          const centerX = cell.x + squareSize / 2;
+          const centerY = cell.y + squareSize / 2;
+          const gradient = ctx.createRadialGradient(centerX, centerY, 5, centerX, centerY, squareSize);
+          gradient.addColorStop(0, `rgba(0, 255, 204, ${cell.alpha})`);
+          gradient.addColorStop(1, `rgba(0, 255, 204, 0)`);
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 1.3;
+          ctx.strokeRect(cell.x + 0.5, cell.y + 0.5, squareSize - 1, squareSize - 1);
+        }
+      }
+      requestAnimationFrame(drawGrid);
+    }
+    initGrid();
+    drawGrid();
+
+    // 🔹 Task Board Logic
     async function loadTasks() {
-      const res = await fetch('https://sharedtask.onrender.com/tasks');
+      const res = await fetch('https://sharedtask.onrender.com/tasks/public');
       const tasks = await res.json();
       const container = document.getElementById('taskBoard');
       container.innerHTML = '';
@@ -41,20 +299,41 @@
         const card = document.createElement('div');
         card.className = 'task-card';
         card.innerHTML = `
+          <p><strong>Uploaded by:</strong> ${task.userName || "Anonymous"}</p>
           <h4>${task.fileName}</h4>
-          <p>${task.description}</p>
+          <p class="description collapsed"></p>
+          <button class="see-more-btn" type="button">See more</button>
           <button class="download-btn">Download</button>
           ${task.status === 'pending'
             ? `<button class="done-btn">Done</button>
                <button class="wait-btn">Wait</button>
                <div class="countdown"></div>`
-            : `<span style="color:green;">Completed</span>`}
+            : `<span style="color:lime;">Completed</span>`}
+          <section class="comments">
+            <h5>Comments</h5>
+            <div class="comment-list"><p>No comments yet.</p></div>
+            <form class="comment-form">
+              <input name="userName" maxlength="80" placeholder="Your name" required>
+              <textarea name="text" maxlength="1000" placeholder="Add a comment..." required></textarea>
+              <button type="submit">Post comment</button>
+              <p class="comment-message" role="status"></p>
+            </form>
+          </section>
         `;
+
+        const description = card.querySelector('.description');
+        const seeMoreBtn = card.querySelector('.see-more-btn');
+        description.textContent = task.description || '';
+        seeMoreBtn.hidden = (task.description || '').length < 180;
+        seeMoreBtn.onclick = () => {
+          const expanded = !description.classList.toggle('collapsed');
+          seeMoreBtn.textContent = expanded ? 'See less' : 'See more';
+        };
 
         const downloadBtn = card.querySelector('.download-btn');
         downloadBtn.onclick = () => {
           const a = document.createElement('a');
-          a.href = 'https://sharedtask.onrender.com/' + task.filePath;
+          a.href = 'https://sharedtask.onrender.com' + task.fileUrl;
           a.download = task.fileName;
           a.click();
         };
@@ -62,12 +341,58 @@
         const doneBtn = card.querySelector('.done-btn');
         const waitBtn = card.querySelector('.wait-btn');
         const countdown = card.querySelector('.countdown');
+        let deleteTimeout = null, countdownInterval = null, remainingTime = 0;
 
-        let deleteTimeout = null;
-        let countdownInterval = null;
-        let remainingTime = 0;
+        const commentList = card.querySelector('.comment-list');
+        const commentForm = card.querySelector('.comment-form');
+        const commentMessage = card.querySelector('.comment-message');
 
-        if (doneBtn) {
+        function renderComments(comments) {
+          commentList.innerHTML = '';
+          if (!comments.length) {
+            commentList.innerHTML = '<p>No comments yet.</p>';
+            return;
+          }
+          comments.forEach(comment => {
+            const item = document.createElement('p');
+            item.className = comment.isAdmin ? 'comment admin-comment' : 'comment';
+            const author = document.createElement('strong');
+            author.textContent = `${comment.userName}: `;
+            item.append(author, document.createTextNode(comment.text));
+            commentList.appendChild(item);
+          });
+        }
+
+        async function loadComments() {
+          const response = await fetch('https://sharedtask.onrender.com/comments/' + task.id);
+          if (response.ok) renderComments(await response.json());
+        }
+
+        commentForm.onsubmit = async event => {
+          event.preventDefault();
+          const formData = new FormData(commentForm);
+          const response = await fetch('https://sharedtask.onrender.com/comments/' + task.id, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userName: formData.get('userName'),
+              text: formData.get('text')
+            })
+          });
+          if (!response.ok) {
+            commentMessage.textContent = 'Could not post comment.';
+            return;
+          }
+          commentForm.reset();
+          commentMessage.textContent = '';
+          await loadComments();
+        };
+
+        loadComments().catch(() => {
+          commentMessage.textContent = 'Comments are temporarily unavailable.';
+        });
+
+                if (doneBtn) {
           doneBtn.onclick = async () => {
             card.classList.add('completed');
             doneBtn.textContent = "Completed";
@@ -94,7 +419,6 @@
           };
         }
 
-        // ✅ Append to the correct container
         container.appendChild(card);
 
         function startCountdown(seconds, onFinish) {
@@ -114,8 +438,6 @@
         }
       });
     }
-
-    // Auto-refresh every 5 seconds so board updates live
     setInterval(loadTasks, 5000);
     loadTasks();
   </script>
