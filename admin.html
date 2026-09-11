@@ -113,6 +113,32 @@
       padding-top: 12px;
     }
 
+    .comments.hidden {
+      display: none;
+    }
+
+    .toggle-comments-btn {
+      background: #3a3f58;
+      color: #fff;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .toggle-comments-btn:hover {
+      background: #4a5070;
+      box-shadow: 0 0 10px #6c74a8;
+    }
+
+    .copy-btn {
+      background: #607d8b;
+      color: #fff;
+    }
+
+    .copy-btn:hover {
+      background: #4f6672;
+      box-shadow: 0 0 10px #607d8b;
+    }
+
     .comments h5 {
       margin: 0 0 8px;
       color: #21cbf3;
@@ -297,25 +323,39 @@
 
       const publicBoard = document.getElementById('publicBoard');
       const zeiBoard = document.getElementById('zeiBoard');
-      publicBoard.innerHTML = '';
-      zeiBoard.innerHTML = '';
 
-      publicTasks.forEach(task => renderTask(task, publicBoard));
-      zeiTasks.forEach(task => renderTask(task, zeiBoard));
+      refreshBoard(publicTasks, publicBoard);
+      refreshBoard(zeiTasks, zeiBoard);
+    }
+
+    function refreshBoard(tasks, container) {
+      const taskIds = new Set(tasks.map(task => String(task.id)));
+      Array.from(container.children).forEach(card => {
+        if (!taskIds.has(card.dataset.taskId)) card.remove();
+      });
+
+      tasks.forEach(task => {
+        if (!container.querySelector(`[data-task-id="${task.id}"]`)) {
+          renderTask(task, container);
+        }
+      });
     }
 
     function renderTask(task, container) {
       const card = document.createElement('div');
       card.className = 'task-card';
+      card.dataset.taskId = task.id;
       card.innerHTML = `
         <p><strong>Uploaded by:</strong> ${task.userName || "Anonymous"}</p>
         <h4>${task.fileName}</h4>
         <p class="description collapsed"></p>
         <button class="see-more-btn" type="button">See more</button>
+        <button class="copy-btn" type="button">Copy description</button>
         <button class="download-btn">Download</button>
         <button class="done-btn">Delete</button>
         <div class="countdown"></div>
-        <section class="comments">
+        <button class="toggle-comments-btn" type="button">Show comments</button>
+        <section class="comments hidden">
           <h5>Comments</h5>
           <div class="comment-list"><p>No comments yet.</p></div>
           <form class="comment-form">
@@ -344,6 +384,30 @@
         a.click();
       };
 
+      const copyBtn = card.querySelector('.copy-btn');
+      copyBtn.onclick = () => {
+        const text = task.description || '';
+        const restoreLabel = 'Copy description';
+        const done = () => {
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => { copyBtn.textContent = restoreLabel; }, 1500);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done).catch(() => {
+            copyBtn.textContent = 'Copy failed';
+            setTimeout(() => { copyBtn.textContent = restoreLabel; }, 1500);
+          });
+        } else {
+          const temp = document.createElement('textarea');
+          temp.value = text;
+          document.body.appendChild(temp);
+          temp.select();
+          try { document.execCommand('copy'); } catch (e) {}
+          document.body.removeChild(temp);
+          done();
+        }
+      };
+
       const doneBtn = card.querySelector('.done-btn');
       const countdown = card.querySelector('.countdown');
       let deleteTimeout = null, countdownInterval = null, remainingTime = 0;
@@ -351,8 +415,23 @@
       const commentList = card.querySelector('.comment-list');
       const commentForm = card.querySelector('.comment-form');
       const commentMessage = card.querySelector('.comment-message');
+      const commentsSection = card.querySelector('.comments');
+      const toggleCommentsBtn = card.querySelector('.toggle-comments-btn');
+      let commentCount = 0;
+
+      function updateToggleLabel() {
+        const isHidden = commentsSection.classList.contains('hidden');
+        toggleCommentsBtn.textContent = `${isHidden ? 'Show' : 'Hide'} comments (${commentCount})`;
+      }
+
+      toggleCommentsBtn.onclick = () => {
+        commentsSection.classList.toggle('hidden');
+        updateToggleLabel();
+      };
 
       function renderComments(comments) {
+        commentCount = comments.length;
+        updateToggleLabel();
         commentList.innerHTML = '';
         if (!comments.length) {
           commentList.innerHTML = '<p>No comments yet.</p>';
