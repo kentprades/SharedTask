@@ -31,6 +31,7 @@
       width: 90%;
       max-width: 600px;
       background: rgba(10, 24, 34, 0.12);
+      -webkit-backdrop-filter: blur(4px);
       backdrop-filter: blur(4px);
       border: 1px solid rgba(33, 203, 243, 0.45);
       padding: 30px;
@@ -218,7 +219,9 @@
       <option value="zei">Zei (Visible to Zei only)</option>
     </select>
 
-    <button onclick="submitTask()">Submit Task</button>
+    <form id="taskForm">
+      <button id="submitButton" type="submit">Submit Task</button>
+    </form>
 
     <div class="footer">
       Developed by Shawn Kent S. Prades
@@ -368,7 +371,16 @@
       });
     }
 
-    async function submitTask() {
+    const taskForm = document.getElementById('taskForm');
+    const submitButton = document.getElementById('submitButton');
+    const apiBase = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+      ? window.location.origin
+      : 'https://sharedtask.onrender.com';
+
+    taskForm.addEventListener('submit', submitTask);
+
+    async function submitTask(event) {
+      event.preventDefault();
       const userName = document.getElementById('userName').value.trim();
       const desc = document.getElementById('desc').value.trim();
       const sendTo = document.getElementById('sendTo').value;
@@ -384,18 +396,29 @@
       formData.append('description', desc);
       formData.append('sendTo', sendTo);
 
+      submitButton.disabled = true;
+      submitButton.textContent = 'Submitting...';
+
       try {
-        const res = await fetch('https://sharedtask.onrender.com/upload', {
+        const res = await fetch(`${apiBase}/upload`, {
           method: 'POST',
           body: formData
         });
-        const data = await res.json();
+        const responseText = await res.text();
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch {
+          data = { message: responseText || 'The server returned an invalid response.' };
+        }
         if (!res.ok) throw new Error(data.message || 'Upload failed.');
         alert(data.message);
         location.href = 'board.html';
       } catch (error) {
         alert(error.message || "Upload failed. Please try again.");
         console.error(error);
+        submitButton.disabled = false;
+        submitButton.textContent = 'Submit Task';
       }
     }
   </script>
